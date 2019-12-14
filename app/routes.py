@@ -29,11 +29,14 @@ def hello():
 			else:
 				currReqUrl = openLibUrl.substitute(olId=jsonRes10['result'][0])
 				rawRes = requests.get(currReqUrl).text
+				# todo: put the json into the database
+				# books.append(json.loads(rawRes)['result']['title'])
 				books.append(rawRes)
 		else:
 			currReqUrl = openLibUrl.substitute(olId=jsonRes13['result'][0])
 			rawRes = requests.get(currReqUrl).text
-			books.append(rawRes)
+			# todo: put the json into the database
+			books.append(json.loads(rawRes)['result']['title'])
 	f_ISBNlist.close()
 	# create objects based on the returned json
 	# add the objects to a table in the database
