@@ -1,5 +1,4 @@
 from app import app
-from app.models import Book, Author, BookAuthor
 from flask import render_template
 from string import Template
 import requests
@@ -50,18 +49,20 @@ def getWorksFromBook(bookJson):
 		return 0
 
 def getAuthorsFromWork(workJson):
+	# todo: make this return an array, not just the first result
 	if('authors' in workJson):
 		authorsKeys = []
 		for author in workJson['authors']:
 			authorsKeys.append(author['author']['key'])
+#		return workJson['authors'][0]['author']['key']
 		return authorsKeys
 	else:
 		return 0
 
 @app.route('/')
 def hello():
-
 	books = []
+
 	# open the file on the server with the list of isbns
 	f_ISBNlist = open("isbn_list.txt")
 	for line in f_ISBNlist:
@@ -70,60 +71,30 @@ def hello():
 		books.append("ISBN: "+ isbn)
 		bookKey = getBookKey(isbn)
 		books.append(bookKey)
-		#bookUID = bookKey[8:]
-		#books.append(bookUID)
 		if(bookKey!=0):
-
-			### Book ###
 			bookJson = getItem(bookKey)
 			books.append(bookJson)
-			authorsList = []
-			# check to see if book is in db - add if not
-			############
-
 			# list of authors from book record
 			authors = getAuthorsFromBook(bookJson)
 			if (authors!=0):
 				for item in authors:
-
-					### Authors ###
-					authorsList.append(item)
-					###############
+					books.append(getItem(item))
 			else:
 				books.append("no author from book")
-
 			# works record (only taking the first one)
 			works = getWorksFromBook(bookJson)
 			if (works!=0):
-
-				### Work ###
 				workJson = getItem(works[0])
 				books.append(workJson)
-				############
-
 				# list of authors from work record
 				authors = getAuthorsFromWork(workJson)
 				if(authors!=0):
 					for item in authors:
-
-						### Authors ###
-						authorsList.append(item)
-						###############
+						books.append(getItem(item))
 				else:
 					books.append("no author from work")
 			else:
 				books.append("no works")
-
-	# go through the authors list and remove duplicates
-	authorsNoDup = list(dict.fromkeys(authorsList))
-	for item in authorsNoDup:
-
-		### Authors ###
-		authorJson = getItem(item)
-		books.append(authorJson)
-		# check to see if author is in db - add if not
-		# add BookAuthor record to db
-		###############
 
 	f_ISBNlist.close()
 	return render_template('index.html', books=books)
