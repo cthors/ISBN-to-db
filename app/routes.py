@@ -11,6 +11,7 @@ import json
 urlGetKeyFromIsbn = Template('http://openlibrary.org/api/things?query={"type":"/type/edition", "${isbnType}":"${isbn}"}')
 urlGetItemFromKey = Template('http://openlibrary.org/api/get?key=${olKey}')
 
+# takes an isbn-13 or isbn-10, returns the openlibrary.org book key (url argument) 
 def getBookKey(isbn):
 	# try isbn13
 	url = urlGetKeyFromIsbn.substitute(isbnType="isbn_13", isbn=isbn)
@@ -26,6 +27,7 @@ def getBookKey(isbn):
 		else:
 			return 0
 
+# takes an openlibrary.org key, does a request on that key and returns the json result 
 def getItem(olKey):
 	url = urlGetItemFromKey.substitute(olKey=olKey)
 	result = json.loads(requests.get(url).text)['result']
@@ -34,6 +36,7 @@ def getItem(olKey):
 	else:
 		return 0
 
+# takes the json object of a book, returns an array of openlibrary.org keys for the authors of that book
 def getAuthorsFromBook(bookJson):
 	if ('authors' in bookJson):
 		authorKeys = []
@@ -43,6 +46,7 @@ def getAuthorsFromBook(bookJson):
 	else:
 		return 0
 
+# takes the json object of a book, returns an array of openlibrary.org keys for the works of that book
 def getWorksFromBook(bookJson):
 	if('works' in bookJson):
 		worksKeys = []
@@ -52,6 +56,7 @@ def getWorksFromBook(bookJson):
 	else:
 		return 0
 
+# takes the json object of a work, returns an array of openlibrary.org keys for the authors of that work
 def getAuthorsFromWork(workJson):
 	if('authors' in workJson):
 		authorsKeys = []
@@ -105,7 +110,7 @@ def addRecords():
 			dbBook = Book.query.filter_by(bookId=bookUID).first()
 			if not dbBook:
 				books.append("adding book to db")
-				b = Book(bookId=bookUID, bookJson="blah blah blah")
+				b = Book(bookId=bookUID, bookJson=json.dumps(bookJson))
 				db.session.add(b)
 			############
 
@@ -159,14 +164,13 @@ def addRecords():
 					dbAuthor = Author.query.filter_by(authorId=authorUID).first()
 					if not dbAuthor:
 						books.append("adding an author")
-						a = Author(authorId=authorUID, json="blah blah blah")
+						a = Author(authorId=authorUID, json=json.dumps(authorJson))
 						db.session.add(a)
 					##############
 
 					### BookAuthor ###
 					ba = BookAuthor(author_id=authorUID, book_id=bookUID)
 					db.session.add(ba)
-					# todo: create the record linking the author to the book
 					##################
 
 				# add the Book, Author, BookAuthor records to the db
