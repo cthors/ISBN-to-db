@@ -7,7 +7,7 @@ class Book(db.Model):
 	workJson = db.Column(db.String(7000), unique=False, nullable=True)
 
 	def __repr__(self):
-		return format(self.json)
+		return format(self.bookJson)
 
 	def set_work(self, json):
 		self.workJson = json
@@ -26,5 +26,4 @@ class BookAuthor(db.Model):
 	book_id = db.Column(db.String(20), db.ForeignKey('book.bookId'))
 
 	def __repr__(self):
-		return (author_id + " " + book_id)
-		return 0
+		return format(self.author_id + " " + self.book_id)

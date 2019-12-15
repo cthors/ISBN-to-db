@@ -58,6 +58,24 @@ def getAuthorsFromWork(workJson):
 	else:
 		return 0
 
+@app.route('/list')
+def testdb():
+	displayLines = []
+
+	displayLines.append("BOOKS:")
+	booksList = Book.query.all()
+	displayLines.append(booksList)
+
+	displayLines.append("AUTHORS:")
+	authorsList = Author.query.all()
+	displayLines.append(authorsList)
+
+	displayLines.append("BOOK AUTHORS:")
+	bookAuthorsList = BookAuthor.query.all()
+	displayLines.append(bookAuthorsList)
+
+	return render_template('index.html', books=displayLines)
+
 @app.route('/')
 def hello():
 
@@ -69,66 +87,81 @@ def hello():
 		isbn = line[7:].rstrip()
 		books.append("ISBN: "+ isbn)
 		bookKey = getBookKey(isbn)
-
 		authorsList = []
 
 		if(bookKey!=0):
 
 			### Book ###
 			bookUID = bookKey[7:]
-			books.append("Book ID: " + bookUID)
 			bookJson = getItem(bookKey)
+			# display to page
 			books.append(bookJson)
-			# check to see if book is in db - add if not
+			books.append("Book ID: " + bookUID)
+			# create book record if doesn't apready exist
+			# todo: leave this whole thing if the book exists already
+			dbBook = Book.query.filter_by(bookId=bookUID).first()
+			if not dbBook:
+				books.append("adding book to db")
+#				b = Book(bookUID)
 			############
 
-			# list of authors from book record
-			authors = getAuthorsFromBook(bookJson)
-			if (authors!=0):
-				for item in authors:
-
-					### Authors ###
-					authorsList.append(item)
-					###############
-			else:
-				books.append("no author from book")
-
-			# works record (only taking the first one)
-			works = getWorksFromBook(bookJson)
-			if (works!=0):
-
-				### Work ###
-				workUID = works[0][7:]
-				workJson = getItem(works[0])
-				books.append("Work ID: " + workUID)
-				books.append(workJson)
-				############
-
-				# list of authors from work record
-				authors = getAuthorsFromWork(workJson)
-				if(authors!=0):
+				# list of authors from book record
+				authors = getAuthorsFromBook(bookJson)
+				if (authors!=0):
 					for item in authors:
-
 						### Authors ###
 						authorsList.append(item)
 						###############
 				else:
-					books.append("no author from work")
-			else:
-				books.append("no works")
+					books.append("no author from book")
 
-		# go through the authors list and remove duplicates
-		authorsNoDup = list(dict.fromkeys(authorsList))
-		for item in authorsNoDup:
+				# works record (only taking the first one)
+				works = getWorksFromBook(bookJson)
+				if (works!=0):
 
-			### Authors ###
-			authorUID = item[9:]
-			books.append("Author ID: " + authorUID)
-			authorJson = getItem(item)
-			books.append(authorJson)
-			# check to see if author is in db - add if not
-			# add BookAuthor record to db
-			###############
+					### Work ###
+					workUID = works[0][7:]
+					workJson = getItem(works[0])
+					# display to page
+					books.append("Work ID: " + workUID)
+					books.append(workJson)
+					# todo: add to book record
+					############
 
+					# list of authors from work record
+					authors = getAuthorsFromWork(workJson)
+					if(authors!=0):
+						for item in authors:
+
+							### Authors ###
+							authorsList.append(item)
+							###############
+					else:
+						books.append("no author from work")
+				else:
+					books.append("no works")
+
+				# go through the authors list and remove duplicates
+				authorsNoDup = list(dict.fromkeys(authorsList))
+				for item in authorsNoDup:
+
+					### Author ###
+					authorUID = item[9:]
+					authorJson = getItem(item)
+					# display to page
+					books.append("Author ID: " + authorUID)
+					books.append(authorJson)
+					# create the author record if it doesn't already exist
+					dbAuthor = Author.query.filter_by(authorId=authorUID).first()
+					if not dbAuthor:
+						books.append("adding an author")
+						a = Author(id=authorUID, json=authorJson)
+#						db.session.add(a)
+					##############
+
+					### BookAuthor ###
+					# todo: create the record linking the author to the book
+					##################
+#	db.session.commit()
 	f_ISBNlist.close()
 	return render_template('index.html', books=books)
