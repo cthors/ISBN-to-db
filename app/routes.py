@@ -69,15 +69,16 @@ def hello():
 		isbn = line[7:].rstrip()
 		books.append("ISBN: "+ isbn)
 		bookKey = getBookKey(isbn)
-		books.append(bookKey)
-		#bookUID = bookKey[8:]
-		#books.append(bookUID)
+
+		authorsList = []
+
 		if(bookKey!=0):
 
 			### Book ###
+			bookUID = bookKey[7:]
+			books.append("Book ID: " + bookUID)
 			bookJson = getItem(bookKey)
 			books.append(bookJson)
-			authorsList = []
 			# check to see if book is in db - add if not
 			############
 
@@ -97,7 +98,9 @@ def hello():
 			if (works!=0):
 
 				### Work ###
+				workUID = works[0][7:]
 				workJson = getItem(works[0])
+				books.append("Work ID: " + workUID)
 				books.append(workJson)
 				############
 
@@ -114,16 +117,18 @@ def hello():
 			else:
 				books.append("no works")
 
-	# go through the authors list and remove duplicates
-	authorsNoDup = list(dict.fromkeys(authorsList))
-	for item in authorsNoDup:
+		# go through the authors list and remove duplicates
+		authorsNoDup = list(dict.fromkeys(authorsList))
+		for item in authorsNoDup:
 
-		### Authors ###
-		authorJson = getItem(item)
-		books.append(authorJson)
-		# check to see if author is in db - add if not
-		# add BookAuthor record to db
-		###############
+			### Authors ###
+			authorUID = item[9:]
+			books.append("Author ID: " + authorUID)
+			authorJson = getItem(item)
+			books.append(authorJson)
+			# check to see if author is in db - add if not
+			# add BookAuthor record to db
+			###############
 
 	f_ISBNlist.close()
 	return render_template('index.html', books=books)
