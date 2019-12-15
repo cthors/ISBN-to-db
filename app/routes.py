@@ -1,6 +1,9 @@
 from app import app
+from app import db
 from app.models import Book, Author, BookAuthor
+
 from flask import render_template
+
 from string import Template
 import requests
 import json
@@ -77,7 +80,7 @@ def testdb():
 	return render_template('index.html', books=displayLines)
 
 @app.route('/')
-def hello():
+def addRecords():
 
 	books = []
 	# open the file on the server with the list of isbns
@@ -102,7 +105,8 @@ def hello():
 			dbBook = Book.query.filter_by(bookId=bookUID).first()
 			if not dbBook:
 				books.append("adding book to db")
-#				b = Book(bookUID)
+				b = Book(bookId=bookUID, bookJson="blah blah blah")
+				db.session.add(b)
 			############
 
 				# list of authors from book record
@@ -155,13 +159,17 @@ def hello():
 					dbAuthor = Author.query.filter_by(authorId=authorUID).first()
 					if not dbAuthor:
 						books.append("adding an author")
-						a = Author(id=authorUID, json=authorJson)
-#						db.session.add(a)
+						a = Author(authorId=authorUID, json="blah blah blah")
+						db.session.add(a)
 					##############
 
 					### BookAuthor ###
+					ba = BookAuthor(author_id=authorUID, book_id=bookUID)
+					db.session.add(ba)
 					# todo: create the record linking the author to the book
 					##################
-#	db.session.commit()
+
+				# add the Book, Author, BookAuthor records to the db
+				db.session.commit()
 	f_ISBNlist.close()
 	return render_template('index.html', books=books)
