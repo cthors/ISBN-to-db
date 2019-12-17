@@ -1,1 +1,6 @@
 >>> from app.models import Book, Author, AuthorBook
+sqlite3
+	.open test.db
+	.output schema.sql
+	.schema
+	.quit
