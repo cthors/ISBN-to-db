@@ -62,113 +62,100 @@ def getAuthorsFromWork(workJson):
 	else:
 		return 0
 
+def dispFromDbRecord(bookRecord):
+	# TODO: maybe return some author stuff here too
+	return bookRecord.bookId
+
+# for books that dont exist in the db, gets the info & puts it in.
+# takes bookUID for primary key in db, bookKey for making the request to openlibrary (tho bookUID is easily derived from bookKey)
+def putBookInDb(bookKey, bookUID):
+	debugList = [""]
+	authorsList = []
+
+	### Book ###
+	bookJson = getItem(bookKey)
+	b = Book(bookId=bookUID, bookJson=json.dumps(bookJson))
+
+	# list of authors from book record
+	authors = getAuthorsFromBook(bookJson)
+	if (authors!=0):
+		for item in authors:
+			### Author ###
+			authorsList.append(item)
+	else:
+		debugList.append("No Authors from Book json")
+
+	# works record (only taking the first one)
+	works = getWorksFromBook(bookJson)
+	if (works!=0):
+
+		### Work ###
+		workUID = works[0][7:]
+		workJson = getItem(works[0])
+		# TODO: add to book record (write function in model)
+
+		# list of authors from work record
+		authors = getAuthorsFromWork(workJson)
+		if(authors!=0):
+			for item in authors:
+				### Author ###
+				authorsList.append(item)
+		else:
+			debugList.append("No Author from Work json")
+	else:
+		debugList.append("No Works from Book json")
+
+	# go through the authors list and remove duplicates
+	authorsNoDup = list(dict.fromkeys(authorsList))
+	for item in authorsNoDup:
+		### Author ###
+		authorUID = item[9:] # the portion of the openlibrary key to use for the db key
+		authorJson = getItem(item)
+		# create the author record if it doesn't already exist
+		authorRecord = Author.query.filter_by(authorId=authorUID).first()
+		if not authorRecord:
+			a = Author(authorId=authorUID, json=json.dumps(authorJson))
+			db.session.add(a)
+			debugList.append("Adding an Author record")
+		### BookAuthor ###
+		ba = BookAuthor(author_id=authorUID, book_id=bookUID)
+		db.session.add(ba)
+		debugList.append("Adding a BookAuthor record")
+
+	### Book ###
+	if 'subtitle' in bookJson:
+		subTitle = bookJson['subtitle']
+		# TODO: add to Book record
+	if 'description' in bookJson:
+		description = bookJson['description']
+		# TODO: add to Book record
+	db.session.add(b)
+	debugList.append("Adding a Book record")
+	db.session.commit()
+	return 0
+
 class AddRecs():
 
 	def testAdd():
+		debugList = [""]
+		booksAddedList = [""]
+		booksExistingList = [""]
 
-		books = []
 		# open the file on the server with the list of isbns
 		f_ISBNlist = open("isbn_list.txt")
 		for line in f_ISBNlist:
-			books.append("-------------------------------")
-			isbn = line[7:].rstrip()
-			books.append("ISBN: "+ isbn)
-			bookKey = getBookKey(isbn)
-			authorsList = []
-
+			isbn = line[7:].rstrip() 		# isbn
+			bookKey = getBookKey(isbn)		# open library key / url portion
 			if(bookKey!=0):
-
-				# get the book ID
-				# if exists in db:
-				#	get book info from db
-				#	add to right column
-				# if doesn't exist in db:
-				#	get book info from request
-				# 	add to left column
-				#	add to db
-
-				### Book ###
-				bookUID = bookKey[7:]
-				bookJson = getItem(bookKey)
-				title = bookJson['title']
-				if 'subtitle' in bookJson:
-					subTitle = bookJson['subtitle']
-					books.append(subTitle)
-				if 'description' in bookJson:
-					description = bookJson['description']
-					books.append(description)
-				# display to page
-				books.append(bookJson)
-				books.append("Book ID: " + bookUID + " " + title)
-				# create book record if doesn't apready exist
-				# todo: leave this whole thing if the book exists already
-				dbBook = Book.query.filter_by(bookId=bookUID).first()
-				if not dbBook:
-					books.append("adding book to db")
-					b = Book(bookId=bookUID, bookJson=json.dumps(bookJson))
-					db.session.add(b)
-				############
-
-					# list of authors from book record
-					authors = getAuthorsFromBook(bookJson)
-					if (authors!=0):
-						for item in authors:
-							### Authors ###
-							authorsList.append(item)
-							###############
-					else:
-						books.append("no author from book")
-
-					# works record (only taking the first one)
-					works = getWorksFromBook(bookJson)
-					if (works!=0):
-
-						### Work ###
-						workUID = works[0][7:]
-						workJson = getItem(works[0])
-						# display to page
-						books.append("Work ID: " + workUID)
-						books.append(workJson)
-						# todo: add to book record
-						############
-
-						# list of authors from work record
-						authors = getAuthorsFromWork(workJson)
-						if(authors!=0):
-							for item in authors:
-
-								### Authors ###
-								authorsList.append(item)
-								###############
-						else:
-							books.append("no author from work")
-					else:
-						books.append("no works")
-
-					# go through the authors list and remove duplicates
-					authorsNoDup = list(dict.fromkeys(authorsList))
-					for item in authorsNoDup:
-
-						### Author ###
-						authorUID = item[9:]
-						authorJson = getItem(item)
-						# display to page
-						books.append("Author ID: " + authorUID)
-						books.append(authorJson)
-						# create the author record if it doesn't already exist
-						dbAuthor = Author.query.filter_by(authorId=authorUID).first()
-						if not dbAuthor:
-							books.append("adding an author")
-							a = Author(authorId=authorUID, json=json.dumps(authorJson))
-							db.session.add(a)
-						##############
-
-						### BookAuthor ###
-						ba = BookAuthor(author_id=authorUID, book_id=bookUID)
-						db.session.add(ba)
-						##################
-
-					# add the Book, Author, BookAuthor records to the db
-					db.session.commit()
+				bookUID = bookKey[7:]		# open library key with url portion removed
+				bookRecord = Book.query.filter_by(bookId=bookUID).first()
+				if not bookRecord: # book is not in db
+					putBookInDb(bookKey, bookUID)
+					bookRecord = Book.query.filter_by(bookId=bookUID).first()
+					booksAddedList.append(dispFromDbRecord(bookRecord))
+				else:
+					booksExistingList.append(dispFromDbRecord(bookRecord))
+			else:
+				debugList.append("Book not found in openlibrary")
 		f_ISBNlist.close()
-		return books
+		return [booksAddedList, booksExistingList]
