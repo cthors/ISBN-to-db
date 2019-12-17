@@ -64,7 +64,10 @@ def getAuthorsFromWork(workJson):
 
 def dispFromDbRecord(bookRecord):
 	# TODO: maybe return some author stuff here too
-	return bookRecord.bookId
+	if not bookRecord._subtitle:
+		return bookRecord._title
+	else:
+		return bookRecord._title + " - " + bookRecord._subtitle
 
 # for books that dont exist in the db, gets the info & puts it in.
 # takes bookUID for primary key in db, bookKey for making the request to openlibrary (tho bookUID is easily derived from bookKey)
@@ -74,7 +77,7 @@ def putBookInDb(bookKey, bookUID):
 
 	### Book ###
 	bookJson = getItem(bookKey)
-	b = Book(bookId=bookUID, bookJson=json.dumps(bookJson))
+	b = Book(_bookId=bookUID, _bookJson=json.dumps(bookJson))
 
 	# list of authors from book record
 	authors = getAuthorsFromBook(bookJson)
@@ -94,6 +97,7 @@ def putBookInDb(bookKey, bookUID):
 		workJson = getItem(works[0])
 		# add Work json to Book object
 		b.set_work(json.dumps(workJson))
+#		b.workJson = json.dumps(workJson)
 
 		# list of authors from work record
 		authors = getAuthorsFromWork(workJson)
@@ -113,23 +117,23 @@ def putBookInDb(bookKey, bookUID):
 		authorUID = item[9:] # the portion of the openlibrary key to use for the db key
 		authorJson = getItem(item)
 		# create the author record if it doesn't already exist
-		authorRecord = Author.query.filter_by(authorId=authorUID).first()
+		authorRecord = Author.query.filter_by(_authorId=authorUID).first()
 		if not authorRecord:
-			a = Author(authorId=authorUID, json=json.dumps(authorJson))
+			a = Author(_authorId=authorUID, _json=json.dumps(authorJson))
 			db.session.add(a)
 			debugList.append("Adding an Author record")
 		### BookAuthor ###
-		ba = BookAuthor(author_id=authorUID, book_id=bookUID)
+		ba = BookAuthor(_authorId=authorUID, _bookId=bookUID)
 		db.session.add(ba)
 		debugList.append("Adding a BookAuthor record")
 
 	### Book ###
+	if 'title' in bookJson:
+		title = bookJson['title']
+		b.set_title(title)
 	if 'subtitle' in bookJson:
-		subTitle = bookJson['subtitle']
-		# TODO: add to Book record
-	if 'description' in bookJson:
-		description = bookJson['description']
-		# TODO: add to Book record
+		subtitle = bookJson['subtitle']
+		b.set_subtitle(subtitle)
 	db.session.add(b)
 	debugList.append("Adding a Book record")
 	db.session.commit()
@@ -150,15 +154,15 @@ class AddRecs():
 			bookKey = getBookKey(isbn)		# open library key / url portion
 			if(bookKey!=0):
 				bookUID = bookKey[7:]		# open library key with url portion removed
-				bookRecord = Book.query.filter_by(bookId=bookUID).first()
+				bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 				if not bookRecord: # book is not in db
 					putBookInDb(bookKey, bookUID)
-					bookRecord = Book.query.filter_by(bookId=bookUID).first()
+					bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 					booksAddedList.append(dispFromDbRecord(bookRecord))
 				else:
 					booksExistingList.append(dispFromDbRecord(bookRecord))
 			else:
-				booksNotFoundList.append(isbn)
+				booksNotFoundList.append("ISBN: " + isbn)
 				debugList.append("Book not found in openlibrary")
 		f_ISBNlist.close()
 		return [booksAddedList, booksExistingList, booksNotFoundList]
