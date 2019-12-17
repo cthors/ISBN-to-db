@@ -141,6 +141,7 @@ class AddRecs():
 		debugList = [""]
 		booksAddedList = [""]
 		booksExistingList = [""]
+		booksNotFoundList = [""]
 
 		# open the file on the server with the list of isbns
 		f_ISBNlist = open("isbn_list.txt")
@@ -157,6 +158,7 @@ class AddRecs():
 				else:
 					booksExistingList.append(dispFromDbRecord(bookRecord))
 			else:
+				booksNotFoundList.append(isbn)
 				debugList.append("Book not found in openlibrary")
 		f_ISBNlist.close()
-		return [booksAddedList, booksExistingList]
+		return [booksAddedList, booksExistingList, booksNotFoundList]

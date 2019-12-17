@@ -5,10 +5,21 @@ class Book(db.Model):
 	bookId = db.Column(db.String(20), unique=True, nullable=True)
 	bookJson = db.Column(db.String(7000), unique=False, nullable=True)
 	workJson = db.Column(db.String(7000), unique=False, nullable=True)
+	title = db.Column(db.String(200), unique=False, nullable=True)
+#	subtitle = db.Column(db.String(200), unique=False, nullable=True)
 
 	# getter & setter:
 	def set_work(self, json):
 		self.workJson = json
+
+#	_workJson = db.Column(db.String(7000), unique=False, nullable=True)
+#	@hybrid_property
+#	def workJson(self):
+#		return self._workJson
+#
+#	@workJson.setter
+#	def workJson(self, workJson):
+#		self._workJson = workJson
 
 	# toString
 	def __repr__(self):

@@ -17,4 +17,5 @@ def add_recs():
 	booksToList = AddRecs.testAdd()
 	addedBooks = booksToList[0]
 	existingBooks = booksToList[1]
-	return render_template('list_added.html', newBooks=addedBooks, oldBooks=existingBooks)
+	nonexistingBooks = booksToList[2]
+	return render_template('list_added.html', newBooks=addedBooks, oldBooks=existingBooks, noBooks=nonexistingBooks)
