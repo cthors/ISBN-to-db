@@ -10,12 +10,11 @@ def homepage():
 @app.route('/list')
 def show_recs():
 	displayItems = ShowRecs.testShow()
-	# just for debugging now
-	return render_template('list.html', newBooks=displayItems, oldBooks=displayItems)
+	return render_template('list.html', records=displayItems)
 
 @app.route('/add')
 def add_recs():
 	booksToList = AddRecs.testAdd()
 	addedBooks = booksToList[0]
 	existingBooks = booksToList[1]
-	return render_template('list.html', newBooks=addedBooks, oldBooks=existingBooks)
+	return render_template('list_added.html', newBooks=addedBooks, oldBooks=existingBooks)

@@ -92,7 +92,8 @@ def putBookInDb(bookKey, bookUID):
 		### Work ###
 		workUID = works[0][7:]
 		workJson = getItem(works[0])
-		# TODO: add to book record (write function in model)
+		# add Work json to Book object
+		b.set_work(json.dumps(workJson))
 
 		# list of authors from work record
 		authors = getAuthorsFromWork(workJson)

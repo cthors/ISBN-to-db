@@ -1,12 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h2>Newly added books:</h2>
-	{% for item in newBooks %}
-	<p>{{item}}</p>
-	{% endfor %}
-	<h2>Books that don't need to be added:</h2>
-	{% for item in oldBooks %}
+	<h2>List of Everything:</h2>
+	{% for item in records %}
 	<p>{{item}}</p>
 	{% endfor %}
 {% endblock %}

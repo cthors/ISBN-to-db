@@ -6,11 +6,13 @@ class Book(db.Model):
 	bookJson = db.Column(db.String(7000), unique=False, nullable=True)
 	workJson = db.Column(db.String(7000), unique=False, nullable=True)
 
-	def __repr__(self):
-		return format(self.bookJson)
-
+	# getter & setter:
 	def set_work(self, json):
 		self.workJson = json
+
+	# toString
+	def __repr__(self):
+		return format(self.bookId)
 
 class Author(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -18,7 +20,7 @@ class Author(db.Model):
 	json = db.Column(db.String(7000), unique=False, nullable=True)
 
 	def __repr__(self):
-		return format(self.json)
+		return format(self.authorId)
 
 class BookAuthor(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -26,4 +28,4 @@ class BookAuthor(db.Model):
 	book_id = db.Column(db.String(20), db.ForeignKey('book.bookId'))
 
 	def __repr__(self):
-		return format(self.author_id + " " + self.book_id)
+		return format(self.id)
