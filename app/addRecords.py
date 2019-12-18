@@ -146,9 +146,9 @@ def putBookInDb(bookKey, bookUID):
 class AddRecs():
 
 	def testAdd():
-		debugList = [""]
-		booksAddedList = [""]
-		booksExistingList = [""]
+		debugList = []
+		booksAddedList = []
+		booksExistingList = []
 		booksNotFoundList = [""]
 
 		# open the file on the server with the list of isbns
