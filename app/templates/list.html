@@ -1,8 +1,8 @@
 {% extends "base.html" %}
+{% import 'book_table.html' as bookTable %}
 
 {% block content %}
-	<h2>List of Everything:</h2>
-	{% for item in records %}
-	<p>{{item}}</p>
-	{% endfor %}
+
+	{{ bookTable.makeBookTable(records) }}
+	
 {% endblock %}

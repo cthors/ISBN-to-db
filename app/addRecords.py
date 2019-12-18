@@ -62,15 +62,19 @@ def getAuthorsFromWork(workJson):
 	else:
 		return 0
 
-def dispFromDbRecord(bookRecord):
-	# TODO: maybe return some author stuff here too
-	if not bookRecord._subtitle:
-		return bookRecord._title
-	else:
-		return bookRecord._title + " - " + bookRecord._subtitle
+# TODO: merge this with the function in showRecords
+def dispFromDbRecord(bookId):
 
-# for books that dont exist in the db, gets the info & puts it in.
-# takes bookUID for primary key in db, bookKey for making the request to openlibrary (tho bookUID is easily derived from bookKey)
+	booksListQuery = 	db.session.query(Book, BookAuthor, Author).\
+						filter(Book._bookId==BookAuthor._bookId).\
+						filter(BookAuthor._authorId==Author._authorId).\
+						filter(Book._bookId==bookId)
+	booksList = booksListQuery.all() # there should only be one
+	for b, ba, a in booksList:
+		if (b._subtitle):
+			b._title = b._title + " - " + b._subtitle
+		return {'fullTitle':str(b._title), 'authorNm':str(a._name)}
+
 def putBookInDb(bookKey, bookUID):
 	debugList = [""]
 	authorsList = []
@@ -158,9 +162,9 @@ class AddRecs():
 				if not bookRecord: # book is not in db
 					putBookInDb(bookKey, bookUID)
 					bookRecord = Book.query.filter_by(_bookId=bookUID).first()
-					booksAddedList.append(dispFromDbRecord(bookRecord))
+					booksAddedList.append(dispFromDbRecord(bookUID))
 				else:
-					booksExistingList.append(dispFromDbRecord(bookRecord))
+					booksExistingList.append(dispFromDbRecord(bookUID))
 			else:
 				booksNotFoundList.append("ISBN: " + isbn)
 				debugList.append("Book not found in openlibrary")

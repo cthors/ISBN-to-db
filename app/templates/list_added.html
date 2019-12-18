@@ -1,18 +1,15 @@
 {% extends "base.html" %}
+{% import 'book_table.html' as bookTable %}
 
 {% block content %}
 
-	<h2>Newly added books:</h2>
-	{% for item in newBooks %}
-	<p>{{item}}</p>
-	{% endfor %}
+	<h5>Newly added books:</h5>
+	{{ bookTable.makeBookTable(newBooks) }}
 
-	<h2>Books that don't need to be added:</h2>
-	{% for item in oldBooks %}
-	<p>{{item}}</p>
-	{% endfor %}
+	<h5>Books that don't need to be added:</h5>
+	{{ bookTable.makeBookTable(oldBooks) }}
 
-	<h2>Books not found in openlibrary.org:</h2>
+	<h5>Books not found in openlibrary.org:</h5>
 	{% for item in noBooks %}
 	<p>{{item}}</p>
 	{% endfor %}

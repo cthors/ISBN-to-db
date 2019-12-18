@@ -1,0 +1,21 @@
+{% macro makeBookTable(bookRecords) -%}
+
+	<table class="u-full-width">
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Author</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{% for bookRecord in bookRecords %}
+			<tr>
+				<td>{{bookRecord.fullTitle}}</td>
+				<td>{{bookRecord.authorNm}}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+{%- endmacro %}
