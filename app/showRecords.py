@@ -13,9 +13,10 @@ class ShowRecs():
 							filter(BookAuthor._authorId==Author._authorId)
 		booksList = booksListQuery.all()
 		for b, ba, a in booksList:
+			fullTitle = b._title
 			if (b._subtitle):
-				b._title = b._title + " - " + b._subtitle
-			displayObj.append({'fullTitle':str(b._title), 'authorNm':str(a._name)})
+				fullTitle = b._title + " - " + b._subtitle
+			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':str(a._name)})
 		return displayObj
 
 #		displayLines.append("BOOKS:")

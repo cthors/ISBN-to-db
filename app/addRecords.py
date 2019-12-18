@@ -71,9 +71,10 @@ def dispFromDbRecord(bookId):
 						filter(Book._bookId==bookId)
 	booksList = booksListQuery.all() # there should only be one
 	for b, ba, a in booksList:
+		fullTitle = b._title
 		if (b._subtitle):
-			b._title = b._title + " - " + b._subtitle
-		return {'fullTitle':str(b._title), 'authorNm':str(a._name)}
+			fullTitle = b._title + " - " + b._subtitle
+		return {'fullTitle':str(fullTitle), 'authorNm':str(a._name)}
 
 def putBookInDb(bookKey, bookUID):
 	debugList = [""]
@@ -124,6 +125,9 @@ def putBookInDb(bookKey, bookUID):
 		authorRecord = Author.query.filter_by(_authorId=authorUID).first()
 		if not authorRecord:
 			a = Author(_authorId=authorUID, _json=json.dumps(authorJson))
+			if 'name' in authorJson:
+				name = authorJson['name']
+				a._name = name
 			db.session.add(a)
 			debugList.append("Adding an Author record")
 		### BookAuthor ###
