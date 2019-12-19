@@ -175,3 +175,5 @@ class AddRecs():
 					debugList.append("Book not found in openlibrary")
 		f_ISBNlist.close()
 		return [booksAddedList, booksExistingList, booksNotFoundList]
+
+# https://www.googleapis.com/books/v1/volumes?q=isbn:
