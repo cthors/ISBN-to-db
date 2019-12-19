@@ -16,8 +16,9 @@ class ShowRecs():
 			fullTitle = b._title
 			if (b._subtitle):
 				fullTitle = b._title + " - " + b._subtitle
-			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':b._bookAuthors})
-#			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':str(a._name)})
+#			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':b._authors}) # TODO: uncomment
+			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':b._bookAuthors}) # TODO: remove (working)
+#			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':str(a._name)}) # TODO: remove (working)
 		return displayObj
 
 #		displayLines.append("BOOKS:")
