@@ -1,8 +1,10 @@
 from app import db
 from app.models import Book, Author, BookAuthor
+from app.showRecords import ShowRecords
 from string import Template
-import requests
-import json
+import requests, json
+
+#### OPENLIBRARY #################################################################
 
 urlGetKeyFromIsbn = Template('http://openlibrary.org/api/things?query={"type":"/type/edition", "${isbnType}":"${isbn}"}')
 urlGetItemFromKey = Template('http://openlibrary.org/api/get?key=${olKey}')
@@ -24,7 +26,7 @@ def getBookKey(isbn):
 			return 0
 
 # takes an openlibrary.org key, does a request on that key and returns the json result 
-def getItem(olKey):
+def getItemJson(olKey):
 	url = urlGetItemFromKey.substitute(olKey=olKey)
 	result = json.loads(requests.get(url).text)['result']
 	if result:
@@ -62,26 +64,27 @@ def getAuthorsFromWork(workJson):
 	else:
 		return 0
 
-# TODO: merge this with the function in showRecords
-def dispFromDbRecord(bookId):
+##### GOOGLE #####################################################################
 
-	booksListQuery = 	db.session.query(Book, BookAuthor, Author).\
-						filter(Book._bookId==BookAuthor._bookId).\
-						filter(BookAuthor._authorId==Author._authorId).\
-						filter(Book._bookId==bookId)
-	booksList = booksListQuery.all() # there should only be one
-	for b, ba, a in booksList:
-		fullTitle = b._title
-		if (b._subtitle):
-			fullTitle = b._title + " - " + b._subtitle
-		return {'fullTitle':str(fullTitle), 'authorNm':str(a._name)}
+urlGetBookJsonGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')
+
+# from google instead:
+def getBookJsonGoogle(isbn):
+	url = urlGetBookJsonGoogle.substitute(isbn=isbn)
+	result = json.loads(requests.get(url).text)['items'][0]['volumeInfo']['title']
+	if result:
+		return result
+	else:
+		return 0
+
+##################################################################################
 
 def putBookInDb(bookKey, bookUID):
 	debugList = [""]
 	authorsList = []
 
 	### Book ###
-	bookJson = getItem(bookKey)
+	bookJson = getItemJson(bookKey)
 	b = Book(_bookId=bookUID, _bookJson=json.dumps(bookJson))
 
 	# list of authors from book record
@@ -99,7 +102,7 @@ def putBookInDb(bookKey, bookUID):
 
 		### Work ###
 		workUID = works[0][7:]
-		workJson = getItem(works[0])
+		workJson = getItemJson(works[0])
 		# add Work json to Book object
 		b.set_work(json.dumps(workJson))
 #		b.workJson = json.dumps(workJson)
@@ -120,7 +123,7 @@ def putBookInDb(bookKey, bookUID):
 	for item in authorsNoDup:
 		### Author ###
 		authorUID = item[9:] # the portion of the openlibrary key to use for the db key
-		authorJson = getItem(item)
+		authorJson = getItemJson(item)
 		# create the author record if it doesn't already exist
 		authorRecord = Author.query.filter_by(_authorId=authorUID).first()
 		if not authorRecord:
@@ -147,19 +150,22 @@ def putBookInDb(bookKey, bookUID):
 	db.session.commit()
 	return 0
 
-class AddRecs():
+##################################################################################
 
-	def testAdd():
+class AddRecords():
+
+	def addBook():
 		debugList = []
 		booksAddedList = []
 		booksExistingList = []
 		booksNotFoundList = [""]
 
-		# open the file on the server with the list of isbns
-		f_ISBNlist = open("isbn_list.txt")
+		f_ISBNlist = open("isbn_list.txt") # the file on the server with the list of isbns
 		for line in f_ISBNlist:
 			if line != '\n':
+				# TODO: also check if the line is in the proper format & add to the debug log if not.
 				isbn = line[7:].rstrip() 		# isbn
+				debugList.append(getBookJsonGoogle(isbn))
 				bookKey = getBookKey(isbn)		# open library key / url portion
 				if(bookKey!=0):
 					bookUID = bookKey[7:]		# open library key with url portion removed
@@ -167,11 +173,11 @@ class AddRecs():
 					if not bookRecord: # book is not in db
 						putBookInDb(bookKey, bookUID)
 						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
-						booksAddedList.append(dispFromDbRecord(bookUID))
+						booksAddedList.append(ShowRecords.formatForBookTable(bookRecord))
 					else:
-						booksExistingList.append(dispFromDbRecord(bookUID))
+						booksExistingList.append(ShowRecords.formatForBookTable(bookRecord))
 				else:
 					booksNotFoundList.append("ISBN: " + isbn)
 					debugList.append("Book not found in openlibrary")
 		f_ISBNlist.close()
-		return [booksAddedList, booksExistingList, booksNotFoundList]
+		return [booksAddedList, booksExistingList, booksNotFoundList, debugList]

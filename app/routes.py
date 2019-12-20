@@ -1,6 +1,6 @@
 from app import app
-from app.showRecords import ShowRecs
-from app.addRecords import AddRecs
+from app.showRecords import ShowRecords
+from app.addRecords import AddRecords
 from flask import render_template
 
 @app.route('/')
@@ -9,13 +9,14 @@ def homepage():
 
 @app.route('/list')
 def show_recs():
-	displayItems = ShowRecs.testShow()
-	return render_template('list.html', records=displayItems)
+	allBooks = ShowRecords.allBooksForDisplay()
+	return render_template('list.html', books=allBooks)
 
 @app.route('/add')
 def add_recs():
-	booksToList = AddRecs.testAdd()
-	addedBooks = booksToList[0]
-	existingBooks = booksToList[1]
-	nonexistingBooks = booksToList[2]
-	return render_template('list_added.html', newBooks=addedBooks, oldBooks=existingBooks, noBooks=nonexistingBooks)
+	results = AddRecords.addBook()
+	return render_template('list_added.html', 
+							newBooks=results[0],
+							oldBooks=results[1],
+							noBooks=results[2],
+							debugList=results[3])

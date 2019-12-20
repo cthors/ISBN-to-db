@@ -1,34 +1,22 @@
-from app import db
-from app.models import Book, Author, BookAuthor
+from app.models import Book
 
-class ShowRecs():
+class ShowRecords():
 
-	# TODO: merge this with the function in addRecords
-	def testShow():
+	# returns the book info, formatted and packaged for book_table.html (the book list display)
+	def formatForBookTable(book):
+		fullTitle = book._title
+		if (book._subtitle):
+			fullTitle = book._title + " - " + book._subtitle
+		authorNm = ', '.join(map(str, book._authors))
+		return {'fullTitle':fullTitle, 'authorNm':authorNm}
+
+	# returns an array of objects
+	def allBooksForDisplay():
 
 		displayObj = []
+		booksList = Book.query.all()
 
-		booksListQuery = 	db.session.query(Book, BookAuthor, Author).\
-							filter(Book._bookId==BookAuthor._bookId).\
-							filter(BookAuthor._authorId==Author._authorId)
-		booksList = booksListQuery.all()
-		for b, ba, a in booksList:
-			fullTitle = b._title
-			if (b._subtitle):
-				fullTitle = b._title + " - " + b._subtitle
-#			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':b._authors}) # TODO: uncomment
-			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':b._bookAuthors}) # TODO: remove (working)
-#			displayObj.append({'fullTitle':str(fullTitle), 'authorNm':str(a._name)}) # TODO: remove (working)
+		for b in booksList:
+			displayObj.append(ShowRecords.formatForBookTable(b))
+
 		return displayObj
-
-#		displayLines.append("BOOKS:")
-#		booksList = Book.query.all()
-#		displayLines.append(booksList)
-#
-#		displayLines.append("AUTHORS:")
-#		authorsList = Author.query.all()
-#		displayLines.append(authorsList)
-#
-#		displayLines.append("BOOK AUTHORS:")
-#		bookAuthorsList = BookAuthor.query.all()
-#		displayLines.append(bookAuthorsList)
