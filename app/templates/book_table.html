@@ -1,10 +1,10 @@
 {% macro makeBookTable(bookRecords) -%}
 
-	<table class="u-full-width">
+	<table class="u-full-width" id="booksTable">
 		<thead>
 			<tr>
-				<th>Title</th>
-				<th>Author</th>
+				<th onclick="sortTable(0)">Title</th>
+				<th onclick="sortTable(1)">Author</th>
 			</tr>
 		</thead>
 
