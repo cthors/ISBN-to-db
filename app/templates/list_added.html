@@ -2,12 +2,9 @@
 {% import 'book_table.html' as bookTable %}
 
 {% block content %}
-
+<div class="row">
 	<h5>Auto-added books:</h5>
 	{{ bookTable.makeBookTable(newBooks) }}
-
-	<h5>Already added books:</h5>
-	{{ bookTable.makeBookTable(oldBooks) }}
 
 	<h5>Books to add manually:</h5>
 	<form action="/manual_add" method="get">
@@ -15,6 +12,9 @@
 		<input type="submit" value="Go to Manual Input">
 	</form>
 	{{ bookTable.makeBookTable(gBooks) }}
+
+	<h5>Already added books:</h5>
+	{{ bookTable.makeBookTable(oldBooks) }}
 
 	<h5>Books not found by ISBN:</h5>
 	{% for item in noBooks %}
@@ -25,5 +25,5 @@
 	{% for item in debugList %}
 	<small><p>{{item}}</p></small>
 	{% endfor %}
-
+</div>
 {% endblock %}

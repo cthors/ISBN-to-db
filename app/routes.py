@@ -29,4 +29,4 @@ def add_recs():
 def add_recs_google():
 	gBookIsbnList = request.args['gbooks']
 	gBookResults = AddRecordsManual.addBooks(gBookIsbnList)
-	return render_template('manual_add_google.html', gBookJsons=gBookResults[0], debugLog=gBookResults[1])
+	return render_template('manual_add_google.html', gBookJsons=gBookResults[0], dbAuths=gBookResults[1], debugLog=gBookResults[2])

@@ -17,6 +17,7 @@ class AddRecordsManual():
 	def addBooks(bookIsbns):
 		booksToAdd = []
 		debugLog = []
+		authorsInDb = Author.query.all()
 
 		bookIsbnsJson = json.loads(bookIsbns)
 
@@ -40,10 +41,10 @@ class AddRecordsManual():
 						lastName = re.split(r'\s|-', author)[-1]
 						namesLike = '%'+ lastName +'%'
 						similarNames = Author.query.filter(Author._name.like(namesLike)).all()
-				bookObj['authorsInDb'] = json.dumps(str(similarNames))
+				bookObj['authorsInDb'] = str(similarNames)
 				booksToAdd.append(bookObj)
 
 			else:
 				debugLog.append(bookJson)
 
-		return [booksToAdd, debugLog]
+		return [booksToAdd, authorsInDb, debugLog]
