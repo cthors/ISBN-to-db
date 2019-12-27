@@ -64,19 +64,6 @@ def getAuthorsFromWork(workJson):
 	else:
 		return 0
 
-##### GOOGLE #####################################################################
-
-urlGetBookJsonGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')
-
-# from google instead:
-def getBookJson(isbn):
-	url = urlGetBookJsonGoogle.substitute(isbn=isbn)
-	result = json.loads(requests.get(url).text)
-	if result:
-		return result
-	else:
-		return 0
-
 ##################################################################################
 
 def putBookInDb(bookKey, bookUID):
@@ -151,9 +138,24 @@ def putBookInDb(bookKey, bookUID):
 
 ##################################################################################
 
-# TODO: remove from the list after adding
+##### GOOGLE #####################################################################
+
+urlGetBookJsonGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')
+
+# from google instead:
+def getBookJson(isbn):
+	url = urlGetBookJsonGoogle.substitute(isbn=isbn)
+	result = json.loads(requests.get(url).text)
+	if result:
+		return result
+	else:
+		return 0
+
+# TODO: remove from the list after adding...
 
 class AddRecords():
+
+	##### MAIN ########################################################################		
 
 	def addBook():
 		debugList = []
@@ -162,7 +164,7 @@ class AddRecords():
 		booksNotFoundList = [""]
 		booksForManualInput = []
 		allAuthors = []
-		googleBookIds = []
+		gBookIsbns = []
 
 		f_ISBNlist = open("isbn_list.txt") # the file on the server with the list of isbns
 		for line in f_ISBNlist:
@@ -189,7 +191,7 @@ class AddRecords():
 						# check if it's in the db
 						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 						if not bookRecord: # book is not in db
-							googleBookIds.append(bookUID)
+							gBookIsbns.append(isbn)
 							#####
 							bookObj = {'fullTitle':'', 'authorNm':''}
 							volumeInfo = bookJsonG['items'][0]['volumeInfo']
@@ -208,5 +210,8 @@ class AddRecords():
 
 		f_ISBNlist.close()
 		# TODO: send the json instead of all this...
+		gBookIsbnsJson = json.dumps(gBookIsbns)
+		debugList.append(gBookIsbnsJson)
+
 		allAuthors = Author.query.all() # TODO: this needs to be updated on the fly as authors are added.
-		return [booksAddedList, booksExistingList, booksNotFoundList, debugList, booksForManualInput, allAuthors, googleBookIds]
+		return [booksAddedList, booksExistingList, booksNotFoundList, debugList, booksForManualInput, gBookIsbnsJson]
