@@ -3,27 +3,27 @@
 
 {% block content %}
 
-	<h5>Newly added books:</h5>
+	<h5>Auto-added books:</h5>
 	{{ bookTable.makeBookTable(newBooks) }}
 
-	<h5>Books that don't need to be added:</h5>
+	<h5>Already added books:</h5>
 	{{ bookTable.makeBookTable(oldBooks) }}
 
-	<h5>Books not found in openlibrary.org:</h5>
-	{% for item in noBooks %}
-	<p>{{item}}</p>
-	{% endfor %}
-
-	<h5>Books needing Manual Input (Google Books API):</h5>
+	<h5>Books to add manually:</h5>
 	<form action="/manual_add" method="get">
 		<input type="hidden" value="{{gBookIds}}" name="gbooks">
 		<input type="submit" value="Go to Manual Input">
 	</form>
 	{{ bookTable.makeBookTable(gBooks) }}
 
+	<h5>Books not found by ISBN:</h5>
+	{% for item in noBooks %}
+	<p>{{item}}</p>
+	{% endfor %}
+
 	<h5>Debug log:</h5>
 	{% for item in debugList %}
-	<p>{{item}}</p>
+	<small><p>{{item}}</p></small>
 	{% endfor %}
 
 {% endblock %}

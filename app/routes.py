@@ -27,7 +27,6 @@ def add_recs():
 
 @app.route('/manual_add', methods=['POST', 'GET'])
 def add_recs_google():
-	# come here from add_recs... books json needs to be sorted out
-	result = request.args['gbooks']
-	result2 = AddRecordsManual.addBooks(result)
-	return render_template('manual_add_google.html', gBookIds=result)
+	gBookIsbnList = request.args['gbooks']
+	gBookResults = AddRecordsManual.addBooks(gBookIsbnList)
+	return render_template('manual_add_google.html', gBookJsons=gBookResults[0], debugLog=gBookResults[1])

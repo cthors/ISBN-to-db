@@ -136,8 +136,6 @@ def putBookInDb(bookKey, bookUID):
 	db.session.commit()
 	return 0
 
-##################################################################################
-
 ##### GOOGLE #####################################################################
 
 urlGetBookJsonGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')
@@ -161,9 +159,8 @@ class AddRecords():
 		debugList = []
 		booksAddedList = []
 		booksExistingList = []
-		booksNotFoundList = [""]
+		booksNotFoundList = []
 		booksForManualInput = []
-		allAuthors = []
 		gBookIsbns = []
 
 		f_ISBNlist = open("isbn_list.txt") # the file on the server with the list of isbns
@@ -183,35 +180,34 @@ class AddRecords():
 
 						booksExistingList.append(ShowRecords.formatForBookTable(bookRecord))
 				else:
-					debugList.append(isbn + " not found in openlibrary")
 					# check google for the book
 					bookJsonG = getBookJson(isbn)
-					if(bookJsonG['totalItems']!=0):
-						bookUID = bookJsonG['items'][0]['id']
-						# check if it's in the db
-						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
-						if not bookRecord: # book is not in db
-							gBookIsbns.append(isbn)
-							#####
-							bookObj = {'fullTitle':'', 'authorNm':''}
-							volumeInfo = bookJsonG['items'][0]['volumeInfo']
-							if 'title' in volumeInfo:
-								bookObj['fullTitle'] = volumeInfo['title']
-							if 'subtitle' in volumeInfo:
-								bookObj['fullTitle'] = bookObj['fullTitle'] + "- " + volumeInfo['subtitle']
-							if 'authors' in volumeInfo:
-								bookObj['authorNm'] = ', '.join(map(str, volumeInfo['authors']))
-							booksForManualInput.append(bookObj)
-							#####
+					if 'totalItems' in bookJsonG:
+						if(bookJsonG['totalItems']!=0):
+							bookUID = bookJsonG['items'][0]['id']
+							# check if it's in the db
+							bookRecord = Book.query.filter_by(_bookId=bookUID).first()
+							if not bookRecord: # book is not in db
+								gBookIsbns.append(isbn)
+								#####
+								bookObj = {'fullTitle':'', 'authorNm':''}
+								volumeInfo = bookJsonG['items'][0]['volumeInfo']
+								if 'title' in volumeInfo:
+									bookObj['fullTitle'] = volumeInfo['title']
+								if 'subtitle' in volumeInfo:
+									bookObj['fullTitle'] = bookObj['fullTitle'] + "- " + volumeInfo['subtitle']
+								if 'authors' in volumeInfo:
+									bookObj['authorNm'] = ', '.join(map(str, volumeInfo['authors']))
+								booksForManualInput.append(bookObj)
+								#####
+							else:
+								booksExistingList.append(ShowRecords.formatForBookTable(bookRecord))
 						else:
-							booksExistingList.append(ShowRecords.formatForBookTable(bookRecord))
+							booksNotFoundList.append("ISBN: " + isbn)
 					else:
-						debugList.append(isbn + " not found in google books")
+						debugList.append(bookJsonG)
 
 		f_ISBNlist.close()
-		# TODO: send the json instead of all this...
+		debugList.append("debugging on")
 		gBookIsbnsJson = json.dumps(gBookIsbns)
-		debugList.append(gBookIsbnsJson)
-
-		allAuthors = Author.query.all() # TODO: this needs to be updated on the fly as authors are added.
 		return [booksAddedList, booksExistingList, booksNotFoundList, debugList, booksForManualInput, gBookIsbnsJson]

@@ -2,7 +2,19 @@
 
 {% block content %}
 
-	<h5>Manually Add Books from Google Book API:</h5>
+	<h5>Select Non-Duplicate Authors to Add:</h5>
 	{{gBookIds}}
+
+	{% for book in gBookJsons %}
+		{% for author in book['authors'] %}
+			<input type="checkbox" name="test1" value="ok">{{author}} ({{book['title']}})<br />
+			Similar Names: ({{book['authorsInDb']}})<br />
+		{% endfor %}
+	{% endfor %}
+
+	
+
+	<h5>Debug Log:</h5>
+	<small>{{debugLog}}</small>
 
 {% endblock %}
