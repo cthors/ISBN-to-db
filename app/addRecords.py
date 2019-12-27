@@ -69,9 +69,9 @@ def getAuthorsFromWork(workJson):
 urlGetBookJsonGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')
 
 # from google instead:
-def getBookJsonGoogle(isbn):
+def getBookJson(isbn):
 	url = urlGetBookJsonGoogle.substitute(isbn=isbn)
-	result = json.loads(requests.get(url).text)['items'][0]['volumeInfo']['title']
+	result = json.loads(requests.get(url).text)
 	if result:
 		return result
 	else:
@@ -105,7 +105,6 @@ def putBookInDb(bookKey, bookUID):
 		workJson = getItemJson(works[0])
 		# add Work json to Book object
 		b.set_work(json.dumps(workJson))
-#		b.workJson = json.dumps(workJson)
 
 		# list of authors from work record
 		authors = getAuthorsFromWork(workJson)
@@ -152,6 +151,8 @@ def putBookInDb(bookKey, bookUID):
 
 ##################################################################################
 
+# TODO: remove from the list after adding
+
 class AddRecords():
 
 	def addBook():
@@ -159,13 +160,15 @@ class AddRecords():
 		booksAddedList = []
 		booksExistingList = []
 		booksNotFoundList = [""]
+		booksForManualInput = []
+		allAuthors = []
+		googleBookIds = []
 
 		f_ISBNlist = open("isbn_list.txt") # the file on the server with the list of isbns
 		for line in f_ISBNlist:
 			if line != '\n':
 				# TODO: also check if the line is in the proper format & add to the debug log if not.
 				isbn = line[7:].rstrip() 		# isbn
-				debugList.append(getBookJsonGoogle(isbn))
 				bookKey = getBookKey(isbn)		# open library key / url portion
 				if(bookKey!=0):
 					bookUID = bookKey[7:]		# open library key with url portion removed
@@ -175,9 +178,35 @@ class AddRecords():
 						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 						booksAddedList.append(ShowRecords.formatForBookTable(bookRecord))
 					else:
+
 						booksExistingList.append(ShowRecords.formatForBookTable(bookRecord))
 				else:
-					booksNotFoundList.append("ISBN: " + isbn)
-					debugList.append("Book not found in openlibrary")
+					debugList.append(isbn + " not found in openlibrary")
+					# check google for the book
+					bookJsonG = getBookJson(isbn)
+					if(bookJsonG['totalItems']!=0):
+						bookUID = bookJsonG['items'][0]['id']
+						# check if it's in the db
+						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
+						if not bookRecord: # book is not in db
+							googleBookIds.append(bookUID)
+							#####
+							bookObj = {'fullTitle':'', 'authorNm':''}
+							volumeInfo = bookJsonG['items'][0]['volumeInfo']
+							if 'title' in volumeInfo:
+								bookObj['fullTitle'] = volumeInfo['title']
+							if 'subtitle' in volumeInfo:
+								bookObj['fullTitle'] = bookObj['fullTitle'] + "- " + volumeInfo['subtitle']
+							if 'authors' in volumeInfo:
+								bookObj['authorNm'] = ', '.join(map(str, volumeInfo['authors']))
+							booksForManualInput.append(bookObj)
+							#####
+						else:
+							booksExistingList.append(ShowRecords.formatForBookTable(bookRecord))
+					else:
+						debugList.append(isbn + " not found in google books")
+
 		f_ISBNlist.close()
-		return [booksAddedList, booksExistingList, booksNotFoundList, debugList]
+		# TODO: send the json instead of all this...
+		allAuthors = Author.query.all() # TODO: this needs to be updated on the fly as authors are added.
+		return [booksAddedList, booksExistingList, booksNotFoundList, debugList, booksForManualInput, allAuthors, googleBookIds]

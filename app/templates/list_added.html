@@ -14,6 +14,13 @@
 	<p>{{item}}</p>
 	{% endfor %}
 
+	<h5>Books needing Manual Input (Google Books API):</h5>
+	<form action="/manual_add" method="get">
+		<input type="hidden" value="test123" name="testdata">
+		<input type="submit" value="Go to Manual Input">
+	</form>
+	{{ bookTable.makeBookTable(googleBooks) }}	
+
 	<h5>Debug log:</h5>
 	{% for item in debugList %}
 	<p>{{item}}</p>
