@@ -2,7 +2,7 @@ from app import db
 
 class Book(db.Model):
 	_id = db.Column(db.Integer, primary_key=True, unique=True)
-	_bookId = db.Column(db.String(20), unique=True, nullable=False)
+	_bookId = db.Column(db.String(20), unique=True, nullable=True)
 	_bookJson = db.Column(db.String(7000), unique=False, nullable=True)
 	_workJson = db.Column(db.String(7000), unique=False, nullable=True)
 	_title = db.Column(db.String(200), unique=False, nullable=True)
@@ -26,7 +26,7 @@ class Book(db.Model):
 
 class Author(db.Model):
 	_id = db.Column(db.Integer, primary_key=True, unique=True)
-	_authorId = db.Column(db.String(20), unique=True, nullable=False)
+	_authorId = db.Column(db.String(20), unique=True, nullable=True)
 	_json = db.Column(db.String(7000), unique=False, nullable=True)
 	_name = db.Column(db.String(7000), unique=False, nullable=True)
 	# relationships:

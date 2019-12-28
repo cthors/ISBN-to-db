@@ -11,6 +11,10 @@
 		<input type="hidden" value="{{gBookIds}}" name="gbooks">
 		<input type="submit" value="Manual Input - Authors">
 	</form>
+	<form action="/manual_books" method="get">
+		<input type="hidden" value="{{gBookIds}}" name="gbooks">
+		<input type="submit" value="Manual Input - Books">
+	</form>	
 	{{ bookTable.makeBookTable(gBooks) }}
 
 	<h5>Already added books:</h5>
