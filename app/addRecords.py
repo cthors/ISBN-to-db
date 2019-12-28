@@ -86,6 +86,12 @@ def putBookInDb(bookKey):
 	bookJson = getItemJson(bookKey)
 	bookUID = getUIDfromBookKey(bookKey)
 	b = Book(_bookId=bookUID, _bookJson=json.dumps(bookJson))
+	if 'title' in bookJson:
+		b._title = bookJson['title']
+	if 'subtitle' in bookJson:
+		b._subtitle = bookJson['subtitle']
+	db.session.add(b)
+	db.session.commit() # commit to get the ID
 	# list of authors from book record
 	authors = getAuthorsFromBook(bookJson)
 	if (authors!=0):
@@ -99,7 +105,7 @@ def putBookInDb(bookKey):
 	if (works!=0):
 #		workUID = works[0][7:]
 		workJson = getItemJson(works[0])
-		b.set_work(json.dumps(workJson))
+		b._workJson = json.dumps(workJson)
 		# list of authors from work record
 		authors = getAuthorsFromWork(workJson)
 		if(authors!=0):
@@ -123,21 +129,14 @@ def putBookInDb(bookKey):
 			if 'name' in authorJson:
 				a._name = authorJson['name']
 			db.session.add(a)
+			db.session.commit() # commit to get the ID
 			debugList.append("Added a record for Author " + authorUID)
 		### BookAuthor ###
-		ba = BookAuthor(_authorId=authorUID, _bookId=bookUID)
+		ba = BookAuthor(_authorId=a._id, _bookId=b._id)
 		db.session.add(ba)
 		debugList.append("Added a BookAuthor record " + authorUID + "," + bookUID)
-
-	# finish up the Book record and add it
-	### Book ###
-	if 'title' in bookJson:
-		b.set_title(bookJson['title'])
-	if 'subtitle' in bookJson:
-		b.set_subtitle(bookJson['subtitle'])
-	db.session.add(b)
-	debugList.append("Adding a Book record")
-	db.session.commit()
+		
+	db.session.commit() # final commit
 	return 0
 
 ##### MAIN ########################################################################

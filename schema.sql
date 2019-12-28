@@ -24,6 +24,6 @@ CREATE TABLE book_author (
 	"_bookId" VARCHAR(20), 
 	PRIMARY KEY (_id), 
 	UNIQUE (_id), 
-	FOREIGN KEY("_authorId") REFERENCES author ("_authorId"), 
-	FOREIGN KEY("_bookId") REFERENCES book ("_bookId")
+	FOREIGN KEY("_authorId") REFERENCES author ("_id"), 
+	FOREIGN KEY("_bookId") REFERENCES book ("_id")
 );
