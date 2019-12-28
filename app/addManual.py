@@ -1,50 +1,44 @@
+from app import db
+from app.models import Author
+from app.commonFunc import CommonFunctions
 from string import Template
 import requests, json, re
-from app.models import Author
 
-# TODO: combine this with its exact copy in addRecords.py
-def getBookGoogleJson(isbn):
-	urlGetBookJsonGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')#&key=${API_KEY}')
-	url = urlGetBookJsonGoogle.substitute(isbn=isbn, API_KEY='AIzaSyBOKLCMsicjEmjL_lhIWo3TC9Oo_3GJ22s')
-	result = json.loads(requests.get(url).text)
-	if result:
-		return result
-	else:
-		return 0
+class AddAuthorsManual():
 
-class AddRecordsManual():
-
-	def addBooks(bookIsbns):
-		booksToAdd = []
+	# display the author names from the isbn's
+	def listAuthors(bookIsbns):
+		authorDispObjs = []
+		allDbAuthors = Author.query.all()
 		debugLog = []
-		authorsInDb = Author.query.all()
 
 		bookIsbnsJson = json.loads(bookIsbns)
 
 		for isbn in bookIsbnsJson:
-			debugLog.append(isbn) # debugging
-			bookJson = getBookGoogleJson(isbn)
-			similarNames = []
-			bookObj = {'title':'', 'subtitle':'', 'authors':'', 'uid':'', 'authorsInDb':''}
-
+			bookJson = CommonFunctions.getBookJsonGoog(isbn)	
 			if 'items' in bookJson:
-				item0 = bookJson['items'][0]
-				bookObj['uid'] = item0['id']
-				volumeInfo = item0['volumeInfo']
-				if 'title' in volumeInfo:
-					bookObj['title'] = volumeInfo['title']
-				if 'subtitle' in volumeInfo:
-					bookObj['subtitle'] = volumeInfo['subtitle']
+				volumeInfo = bookJson['items'][0]['volumeInfo']
 				if 'authors' in volumeInfo:
-					bookObj['authors'] = volumeInfo['authors']
-					for author in bookObj['authors']:
-						lastName = re.split(r'\s|-', author)[-1]
-						namesLike = '%'+ lastName +'%'
-						similarNames = Author.query.filter(Author._name.like(namesLike)).all()
-				bookObj['authorsInDb'] = str(similarNames)
-				booksToAdd.append(bookObj)
-
-			else:
+					for author in volumeInfo['authors']:
+						authorDisp = {'title':'','author':''}
+						authorDisp['author'] = author
+						if 'title' in volumeInfo:
+							authorDisp['title'] = volumeInfo['title']
+						authorDispObjs.append(authorDisp)
+				else:
+					debugLog.append("no authors for ISBN " + isbn)
+			else: # reached google books API request limit or something
 				debugLog.append(bookJson)
 
-		return [booksToAdd, authorsInDb, debugLog]
+		return [authorDispObjs, allDbAuthors, debugLog]
+
+#	lastName = re.split(r'\s|-', author)[-1]
+#	namesLike = '%'+ lastName +'%'
+#	similarNames = Author.query.filter(Author._name.like(namesLike)).all()
+
+	def addAuthors(authNms):
+		return 0
+#		for name in authNms:
+#			a = Author(_authorId=authorUID)
+#			db.session.add(a)
+#			db.session.commit()

@@ -7,9 +7,9 @@
 	{{ bookTable.makeBookTable(newBooks) }}
 
 	<h5>Books to add manually:</h5>
-	<form action="/manual_add" method="get">
+	<form action="/manual_authors" method="get">
 		<input type="hidden" value="{{gBookIds}}" name="gbooks">
-		<input type="submit" value="Go to Manual Input">
+		<input type="submit" value="Manual Input - Authors">
 	</form>
 	{{ bookTable.makeBookTable(gBooks) }}
 

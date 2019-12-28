@@ -2,20 +2,21 @@
 
 {% block content %}
 <div class="row">
+
 	<div class="one-half column">
 		<h5>Select Non-Duplicate Authors to Add:</h5>
-		{{gBookIds}}
-
-		{% for book in gBookJsons %}
-			{% for author in book['authors'] %}
-				<input type="checkbox" name="test1" value="ok">{{author}} ({{book['title']}})<br />
-				Similar Names: ({{book['authorsInDb']}})<br />
+		<form action="/manual_authors_add" method="get">
+			{% for auth in gBookAuths %}
+			<input type="checkbox" name="authNm" value="{{auth['author']}}">
+				{{auth['author']}} ({{auth['title']}})<br />
 			{% endfor %}
-		{% endfor %}
+			<input type="submit" value="Add Selected Authors" />
+		</form>
 	</div>
+
 	<div class="one-half column">
 		<h5>Authors already in DB:</h5>
-		{% for auth in dbAuths %}
+		{% for auth in allAuths %}
 			{{auth}}<br />
 		{% endfor %}
 	</div>
