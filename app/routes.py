@@ -17,8 +17,6 @@ def add_records():
 	results = AddRecords.addBook()
 	return render_template('list_added.html', 
 							newBooks=results[0],
-							gBooks=results[1],
-							oldBooks=results[2],
-							noBooks=results[3],
-							debugList=results[4],
-							gBookIds=results[5])
+							oldBooks=results[1],
+							noBooks=results[2],
+							debugList=results[3])

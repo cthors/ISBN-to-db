@@ -4,6 +4,13 @@ from app.commonFunc import CommonFunctions
 from string import Template
 import requests, json
 
+### So far, this doesn't account for physical copies of the book!!
+
+### TODO: 	need to make another table called BookInstance or something &
+###			add to that with each line in the input file
+
+### This program checks openlibrary first, and the google books second for the book info
+
 #### OPENLIBRARY #################################################################
 
 urlGetKeyFromIsbn = Template('http://openlibrary.org/api/things?query={"type":"/type/edition", "${isbnType}":"${isbn}"}')
@@ -135,9 +142,21 @@ def putBookInDb(bookKey):
 		ba = BookAuthor(_authorId=a._id, _bookId=b._id)
 		db.session.add(ba)
 		debugList.append("Added a BookAuthor record " + authorUID + "," + bookUID)
-		
+
 	db.session.commit() # final commit
 	return 0
+
+##### GOOGLE #####################################################################
+# input: an isbn
+# output: the book's json result from google books api
+def getBookJsonGoog(isbn):
+	urlGetBookFromGoogle = Template('https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}')#&key=${API_KEY}')
+	url = urlGetBookFromGoogle.substitute(isbn=isbn, API_KEY='AIzaSyBOKLCMsicjEmjL_lhIWo3TC9Oo_3GJ22s')
+	result = json.loads(requests.get(url).text)
+	if result:
+		return result
+	else:
+		return 0
 
 ##### MAIN ########################################################################
 
@@ -150,8 +169,6 @@ class AddRecords():
 		booksAddedList = []
 		booksExistingList = []
 		booksNotFoundList = []
-		booksForManualInput = []
-		gBookIsbns = []
 
 		f_ISBNlist = open("isbn_list.txt")
 		for line in f_ISBNlist:
@@ -169,24 +186,47 @@ class AddRecords():
 					else:
 						booksExistingList.append(CommonFunctions.formatForBookTable(bookRecord))
 				else: # not in openlibrary.org - check google books api
-					bookJsonG = CommonFunctions.getBookJsonGoog(isbn)
+					bookJsonG = getBookJsonGoog(isbn)
 					if 'totalItems' in bookJsonG:
 						if(bookJsonG['totalItems']!=0):
 							bookUID = bookJsonG['items'][0]['id']
 							# check if it's in the db
 							bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 							if not bookRecord: # book is not in db
-								gBookIsbns.append(isbn)
-								# create a temporary object representing the book (for display on this page)
-								bookObj = {'fullTitle':'', 'authorNm':''}
+								# Check to see if the book's title is unique
 								volumeInfo = bookJsonG['items'][0]['volumeInfo']
 								if 'title' in volumeInfo:
-									bookObj['fullTitle'] = volumeInfo['title']
-								if 'subtitle' in volumeInfo:
-									bookObj['fullTitle'] = bookObj['fullTitle'] + " " + volumeInfo['subtitle']
-								if 'authors' in volumeInfo:
-									bookObj['authorNm'] = ', '.join(map(str, volumeInfo['authors']))
-								booksForManualInput.append(bookObj)
+									title = volumeInfo['title']
+									sameTitleRecord = Book.query.filter_by(_title=title).first()
+									if not sameTitleRecord:
+										# add the book to the db
+										b = Book(_bookId=bookUID, _title=title, _bookJson=json.dumps(bookJsonG))
+										if 'subtitle' in volumeInfo:
+											b._subtitle = volumeInfo['subtitle']
+										db.session.add(b)
+										db.session.commit() # commit to get the ID
+										if 'authors' in volumeInfo:
+											for author in volumeInfo['authors']:
+												# TODO: check to see if the author is added to the db
+												sameAuthorRecord = Author.query.filter_by(_name=author).first()
+												if not sameAuthorRecord:
+													# add the author to the db
+													a = Author(_name=author)
+													db.session.add(a)
+													db.session.commit() # commit to get the ID
+													authorId = a._id
+												else:
+													authorId = sameAuthorRecord_.id
+												# add the bookauthor to the db
+												ba = BookAuthor(_authorId=authorId, _bookId=b._id)
+												db.session.add(ba)
+										db.session.commit() # final commit
+										addedBook = Book.query.filter_by(_bookId=bookUID).first()
+										booksAddedList.append(CommonFunctions.formatForBookTable(addedBook))
+									else:
+										debugList.append("Book " + bookUID + " is already in db by title")
+								else:
+									debugList.append("No title for Book " + bookUID)
 							else:
 								booksExistingList.append(CommonFunctions.formatForBookTable(bookRecord))
 						else:
@@ -196,11 +236,8 @@ class AddRecords():
 
 		f_ISBNlist.close()
 		debugList.append("debugging on")
-		gBookIsbnsJson = json.dumps(gBookIsbns)
 
 		return [booksAddedList,
-				booksForManualInput,
 				booksExistingList,
 				booksNotFoundList,
-				debugList,
-				gBookIsbnsJson]
+				debugList]
