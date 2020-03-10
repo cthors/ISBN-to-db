@@ -34,3 +34,10 @@ class BookAuthor(db.Model):
 
 	def __repr__(self):
 		return format(self._id)
+
+class PhysicalBook(db.Model):
+	_id = db.Column(db.Integer, primary_key=True, unique=True)
+	_in = db.Column(db.Integer)
+	_bookId = db.Column(db.String(20), db.ForeignKey('book._id'))
+	_book = db.relationship("Book")
+
