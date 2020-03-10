@@ -27,3 +27,11 @@ CREATE TABLE book_author (
 	FOREIGN KEY("_authorId") REFERENCES author ("_id"), 
 	FOREIGN KEY("_bookId") REFERENCES book ("_id")
 );
+CREATE TABLE physical_book(
+	_id INTEGER NOT NULL,
+	"_bookId" VARCHAR(20),
+	_in INTEGER,
+	PRIMARY KEY (_id), 
+	UNIQUE (_id),
+	FOREIGN KEY("_bookId") REFERENCES book ("_id")
+);
