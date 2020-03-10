@@ -1,5 +1,5 @@
 from app import db
-from app.models import Book, Author, BookAuthor
+from app.models import Book, Author, BookAuthor, PhysicalBook
 from app.commonFunc import CommonFunctions
 from string import Template
 import requests, json
@@ -99,6 +99,9 @@ def putBookInDb(bookKey):
 		b._subtitle = bookJson['subtitle']
 	db.session.add(b)
 	db.session.commit() # commit to get the ID
+	pb = PhysicalBook(_bookId=b._id)
+	db.session.add(pb)
+
 	# list of authors from book record
 	authors = getAuthorsFromBook(bookJson)
 	if (authors!=0):
@@ -184,6 +187,8 @@ class AddRecords():
 						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 						booksAddedList.append(CommonFunctions.formatForBookTable(bookRecord))
 					else:
+						pb = PhysicalBook(_bookId=bookRecord._id)
+						db.session.add(pb)
 						booksExistingList.append(CommonFunctions.formatForBookTable(bookRecord))
 				else: # not in openlibrary.org - check google books api
 					bookJsonG = getBookJsonGoog(isbn)
@@ -201,6 +206,9 @@ class AddRecords():
 									if not sameTitleRecord:
 										# add the book to the db
 										b = Book(_bookId=bookUID, _title=title, _bookJson=json.dumps(bookJsonG))
+										db.session.commit() # commit to get book id
+										pb = PhysicalBook(_bookId=b._id)
+										db.session.add(pb)
 										if 'subtitle' in volumeInfo:
 											b._subtitle = volumeInfo['subtitle']
 										db.session.add(b)
@@ -220,19 +228,24 @@ class AddRecords():
 												# add the bookauthor to the db
 												ba = BookAuthor(_authorId=authorId, _bookId=b._id)
 												db.session.add(ba)
-										db.session.commit() # final commit
 										addedBook = Book.query.filter_by(_bookId=bookUID).first()
 										booksAddedList.append(CommonFunctions.formatForBookTable(addedBook))
 									else:
+										pb = PhysicalBook(_bookId=sameTitleRecord._id)
+										db.session.add(pb)
 										debugList.append("Book " + bookUID + " is already in db by title")
 								else:
 									debugList.append("No title for Book " + bookUID)
 							else:
+								pb = PhysicalBook(_bookId=bookRecord._id)
+								db.session.add(pb)
 								booksExistingList.append(CommonFunctions.formatForBookTable(bookRecord))
 						else:
 							booksNotFoundList.append("ISBN: " + isbn)
 					else: # something weird is wrong (reached API request limit, etc)
 						debugList.append(bookJsonG)
+						
+		db.session.commit() # final commit
 
 		f_ISBNlist.close()
 		debugList.append("debugging on")
