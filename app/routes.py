@@ -23,5 +23,6 @@ def add_records():
 
 @app.route('/one')
 def one_book_info():
-	return "hello world"
+	return render_template('index.html')
+#	return "hello world"
 #	return render_template('one_book.html')
