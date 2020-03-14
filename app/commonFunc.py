@@ -26,4 +26,4 @@ class CommonFunctions():
 	def oneBookInfo(bookId):
 		str = Book.query.filter_by(_bookId=bookId).first()._bookJson
 		str2 = pprint.pformat(str, indent=4)
-		return str2
+		return str
