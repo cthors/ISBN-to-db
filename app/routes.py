@@ -20,3 +20,7 @@ def add_records():
 							oldBooks=results[1],
 							noBooks=results[2],
 							debugList=results[3])
+
+@app.route('/one')
+def one_book_info():
+	return render_template('one_book.html')
