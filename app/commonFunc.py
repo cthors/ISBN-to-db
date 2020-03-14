@@ -25,4 +25,5 @@ class CommonFunctions():
 
 	def oneBookInfo(bookId):
 		str = Book.query.filter_by(_bookId=bookId).first()._bookJson
-		return str
+		pp = pprint.PrettyPrinter(width=41, compact=True)
+		return pp.pprint(str)
