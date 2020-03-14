@@ -21,6 +21,10 @@ def add_records():
 							noBooks=results[2],
 							debugList=results[3])
 
+@app.route('/set_lastname')
+def set_lastname:
+	return "set last name for sort"
+
 @app.route('/<id>')
 def one_book_info(id):
 	# get the total book json from the id
