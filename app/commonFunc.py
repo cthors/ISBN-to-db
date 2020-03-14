@@ -24,5 +24,5 @@ class CommonFunctions():
 		return displayObj
 
 	def oneBookInfo(bookId):
-		str = Book.query.filter_by(_bookId=bookId).first().toString()
+		str = Book.query.filter_by(_bookId=bookId).first()._bookJson
 		return "here's something lol: " + str
