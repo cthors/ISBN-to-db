@@ -84,7 +84,7 @@ def getUIDfromBookKey(bookKey):
 # input: the openlibrary key of a book which is NOT yet in the local db
 # function: creates the Book and associated Author (if necessary), BookAuthor records in local db
 # output: 0
-def putBookInDb(bookKey):
+def putBookInDb(bookKey, isbn):
 	debugList = []
 	authorsList = []
 
@@ -92,7 +92,7 @@ def putBookInDb(bookKey):
 	### Book ###
 	bookJson = getItemJson(bookKey)
 	bookUID = getUIDfromBookKey(bookKey)
-	b = Book(_bookId=bookUID, _bookJson=json.dumps(bookJson))
+	b = Book(_bookId=bookUID, _bookJson=json.dumps(bookJson), _isbn=isbn)
 	if 'title' in bookJson:
 		b._title = bookJson['title']
 	if 'subtitle' in bookJson:
@@ -183,7 +183,7 @@ class AddRecords():
 					bookUID = getUIDfromBookKey(bookKey)	# open library key with url portion removed
 					bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 					if not bookRecord: # book is not in db
-						putBookInDb(bookKey)
+						putBookInDb(bookKey, isbn)
 						bookRecord = Book.query.filter_by(_bookId=bookUID).first()
 						booksAddedList.append(CommonFunctions.formatForBookTable(bookRecord))
 					else:
@@ -205,7 +205,7 @@ class AddRecords():
 									sameTitleRecord = Book.query.filter_by(_title=title).first()
 									if not sameTitleRecord:
 										# add the book to the db
-										b = Book(_bookId=bookUID, _title=title, _bookJson=json.dumps(bookJsonG))
+										b = Book(_bookId=bookUID, _title=title, _bookJson=json.dumps(bookJsonG), _isbn=isbn)
 										db.session.commit() # commit to get book id
 										pb = PhysicalBook(_bookId=b._id)
 										db.session.add(pb)

@@ -9,6 +9,7 @@ class Book(db.Model):
 	_subtitle = db.Column(db.String(200), unique=False, nullable=True)
 
 	_isbn = db.Column(db.String(13), unique=True, nullable=True)
+	_date = db.Column(db.String(40), unique=False, nullable=True)
 
 	# relationships:
 	# TODO: figure out how to add back_populates 
