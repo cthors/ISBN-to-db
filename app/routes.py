@@ -1,4 +1,5 @@
-from app import app
+from app import app, db
+from app.models import Book
 from app.commonFunc import CommonFunctions
 from app.addRecords import AddRecords
 from flask import render_template, request
@@ -23,6 +24,11 @@ def add_records():
 
 @app.route('/set_lastname/<lname>/<bookId>')
 def set_lastname(lname, bookId):
+	###
+	bookRecord = Book.query.filter_by(_bookId=bookId).first()
+	bookRecord._sortName = lname
+	db.session.commit()
+	###
 	return "set last name for sort: " + lname + " for " + bookId
 
 @app.route('/<id>')
