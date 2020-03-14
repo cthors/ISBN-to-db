@@ -5,6 +5,7 @@
 			<tr>
 				<th onclick="sortTable(0)">Title</th>
 				<th onclick="sortTable(1)">Author</th>
+				<th onclick="sortTable(1)">Book ID</th>
 			</tr>
 		</thead>
 
@@ -13,6 +14,7 @@
 			<tr>
 				<td>{{bookRecord.fullTitle}}</td>
 				<td>{{bookRecord.authorNm}}</td>
+				<td>{{bookRecord.bookId}}</td>
 			</tr>
 			{% endfor %}
 		</tbody>
