@@ -12,7 +12,6 @@ class CommonFunctions():
 		if (book._subtitle):
 			fullTitle = book._title + " - " + book._subtitle
 		authorNm = ', '.join(map(str, book._authors))
-		#bookId = book._bookId
 		return {'fullTitle':fullTitle, 'authorNm':authorNm, 'bookId':book._bookId}
 
 	# output: an array of objects
@@ -25,4 +24,4 @@ class CommonFunctions():
 
 	def oneBookInfo(bookId):
 		str = Book.query.filter_by(_bookId=bookId).first()._bookJson
-		return "here's something lol: " + str
+		return str
