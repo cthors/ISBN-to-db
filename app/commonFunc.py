@@ -1,7 +1,6 @@
 from app.models import Book
 from string import Template
 import requests, json
-import pprint
 
 class CommonFunctions():
 
@@ -25,5 +24,4 @@ class CommonFunctions():
 
 	def oneBookInfo(bookId):
 		str = Book.query.filter_by(_bookId=bookId).first()._bookJson
-		str2 = pprint.pformat(str, indent=4)
 		return str
