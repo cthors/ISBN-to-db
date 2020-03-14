@@ -22,7 +22,7 @@ def add_records():
 							debugList=results[3])
 
 @app.route('/set_lastname/<lname>/<bookId>')
-def set_lastname(lname, id):
+def set_lastname(lname, bookId):
 	return "set last name for sort: " + lname + " for " + bookId
 
 @app.route('/<id>')
