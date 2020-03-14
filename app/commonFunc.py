@@ -13,7 +13,7 @@ class CommonFunctions():
 			fullTitle = book._title + " - " + book._subtitle
 		authorNm = ', '.join(map(str, book._authors))
 		bookId = book._bookId
-		return {'fullTitle':fullTitle, 'authorNm':authorNm}
+		return {'fullTitle':fullTitle, 'authorNm':authorNm, 'bookId':bookId}
 
 	# output: an array of objects
 	def allBooksForDisplay():
