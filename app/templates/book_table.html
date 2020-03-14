@@ -14,8 +14,10 @@
 			{% for bookRecord in bookRecords %}
 			<tr>
 				<td>{{bookRecord.fullTitle}}</td>
-				<td>{{bookRecord.authorNm}}
-					{% for name in bookRecord.authorNm %}{{ name }} {% endfor %}
+				<td>
+					{% for name in bookRecord.authorNm %}
+						<a href="/set_lastname">{{ name }}</a>
+					{% endfor %}
 				</td>
 				<td>{{bookRecord.bookId}}</td>
 				<td>{{bookRecord.isbn}}</td>
