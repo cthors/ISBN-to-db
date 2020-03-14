@@ -1,6 +1,7 @@
 from app.models import Book
 from string import Template
 import requests, json
+import pprint
 
 class CommonFunctions():
 
