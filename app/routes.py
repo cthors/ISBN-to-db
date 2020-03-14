@@ -23,5 +23,6 @@ def add_records():
 
 @app.route('/<id>')
 def one_book_info(id):
-	return render_template('one_book.html', bookId=id)
-#	return render_template('one_book.html', bookId="yup")
+	# get the total book json from the id
+	bookInfo = CommonFunctions.oneBookInfo()
+	return render_template('one_book.html', bookId=bookInfo)

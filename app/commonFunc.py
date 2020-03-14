@@ -22,3 +22,6 @@ class CommonFunctions():
 		for b in booksList:
 			displayObj.append(CommonFunctions.formatForBookTable(b))
 		return displayObj
+
+	def oneBookInfo(bookId):
+		return "here's something lol"
