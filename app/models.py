@@ -7,6 +7,9 @@ class Book(db.Model):
 	_workJson = db.Column(db.String(7000), unique=False, nullable=True)
 	_title = db.Column(db.String(200), unique=False, nullable=True)
 	_subtitle = db.Column(db.String(200), unique=False, nullable=True)
+
+	_isbn = db.Column(db.String(13), unique=True, nullable=True)
+
 	# relationships:
 	# TODO: figure out how to add back_populates 
 	_authors = db.relationship("Author", secondary='book_author')
@@ -40,4 +43,3 @@ class PhysicalBook(db.Model):
 	_in = db.Column(db.Integer)
 	_bookId = db.Column(db.String(20), db.ForeignKey('book._id'))
 	_book = db.relationship("Book")
-
