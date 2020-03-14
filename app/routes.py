@@ -21,8 +21,7 @@ def add_records():
 							noBooks=results[2],
 							debugList=results[3])
 
-@app.route('/id')
+@app.route('/<id>')
 def one_book_info():
-	bookId = request.args.get('id', type="String")
-	return render_template('one_book.html', bookId=bookId)
+	return render_template('one_book.html', bookId=id)
 #	return render_template('one_book.html', bookId="yup")
