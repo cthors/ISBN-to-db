@@ -22,6 +22,6 @@ def add_records():
 							debugList=results[3])
 
 @app.route('/<id>')
-def one_book_info():
+def one_book_info(id):
 	return render_template('one_book.html', bookId=id)
 #	return render_template('one_book.html', bookId="yup")
