@@ -15,7 +15,7 @@ class CommonFunctions():
 
 		authorNmArr = authorNm.split()
 
-		return {'fullTitle':fullTitle, 'authorNm':authorNmArr, 'bookId':book._bookId, 'isbn':book._isbn, 'sortName':book.sortName}
+		return {'fullTitle':fullTitle, 'authorNm':authorNmArr, 'bookId':book._bookId, 'isbn':book._isbn, 'sortName':book._sortName}
 
 	# output: an array of objects
 	def allBooksForDisplay():
