@@ -97,8 +97,8 @@ def putBookInDb(bookKey, isbn):
 		b._title = bookJson['title']
 	if 'subtitle' in bookJson:
 		b._subtitle = bookJson['subtitle']
-#	if 'publish_date' in bookJson
-#		b._date = bookJson['publish_date']
+	if 'publish_date' in bookJson:
+		b._date = bookJson['publish_date']
 	db.session.add(b)
 	db.session.commit() # commit to get the ID
 	pb = PhysicalBook(_bookId=b._id)
