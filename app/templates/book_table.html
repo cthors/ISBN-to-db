@@ -16,7 +16,7 @@
 				<td>{{bookRecord.fullTitle}}</td>
 				<td>
 					{% for name in bookRecord.authorNm %}
-						<a href="/set_lastname/{{name}}/{{bookRecord.bookId}}">{{ name }}</a>
+						[{{bookRecord.sortName}}]<a href="/set_lastname/{{name}}/{{bookRecord.bookId}}">{{ name }}</a>
 					{% endfor %}
 				</td>
 				<td>{{bookRecord.bookId}}</td>
