@@ -2,7 +2,7 @@ from app import db
 from app.models import Book, Author, BookAuthor, PhysicalBook
 from app.commonFunc import CommonFunctions
 from string import Template
-import requests, json
+import requests, json, re
 
 ### So far, this doesn't account for physical copies of the book!!
 
@@ -98,6 +98,10 @@ def putBookInDb(bookKey, isbn):
 	if 'subtitle' in bookJson:
 		b._subtitle = bookJson['subtitle']
 	if 'publish_date' in bookJson:
+
+		yearMatch = re.match('\d\d\d\d', bookJson['publish_date'])
+		year = yearMatch.group(0)
+
 		b._date = bookJson['publish_date']
 	db.session.add(b)
 	db.session.commit() # commit to get the ID
