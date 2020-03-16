@@ -100,9 +100,11 @@ def putBookInDb(bookKey, isbn):
 	if 'publish_date' in bookJson:
 
 		yearMatch = re.match('\d\d\d\d', bookJson['publish_date'])
-		year = yearMatch.group(0)
-
-		b._date = bookJson['publish_date']
+		if yearMatch:
+			year = yearMatch.group(0)
+			b._date = year
+		else
+			b._date = bookJson['publish_date']
 	db.session.add(b)
 	db.session.commit() # commit to get the ID
 	pb = PhysicalBook(_bookId=b._id)
