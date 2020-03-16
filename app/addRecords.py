@@ -103,7 +103,7 @@ def putBookInDb(bookKey, isbn):
 		if yearMatch:
 			year = yearMatch.group(0)
 			b._date = year
-		else
+		else:
 			b._date = bookJson['publish_date']
 	db.session.add(b)
 	db.session.commit() # commit to get the ID
