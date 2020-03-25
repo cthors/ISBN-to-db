@@ -97,6 +97,7 @@ def putBookInDb(bookKey, isbn):
 		b._title = bookJson['title']
 	if 'subtitle' in bookJson:
 		b._subtitle = bookJson['subtitle']
+
 	if 'publish_date' in bookJson:
 
 		yearMatch = re.match('\d\d\d\d', bookJson['publish_date'])
@@ -106,6 +107,7 @@ def putBookInDb(bookKey, isbn):
 		else:
 			# volumeInfo: {publishedDate}
 			b._date = bookJson['publish_date']
+
 	db.session.add(b)
 	db.session.commit() # commit to get the ID
 	pb = PhysicalBook(_bookId=b._id)
@@ -186,7 +188,7 @@ class AddRecords():
 		for line in f_ISBNlist:
 			if line != '\n':
 				# TODO: check if the line is in the proper format
-				isbn = line[7:].rstrip() 		# isbn
+				isbn = line.rstrip() 		# isbn
 				bookKey = getBookKey(isbn)		# open library key / url portion
 				if(bookKey!=0):
 					bookUID = getUIDfromBookKey(bookKey)	# open library key with url portion removed
