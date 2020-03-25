@@ -97,15 +97,13 @@ def putBookInDb(bookKey, isbn):
 		b._title = bookJson['title']
 	if 'subtitle' in bookJson:
 		b._subtitle = bookJson['subtitle']
-
+	# TODO: function? (this is reused in the google books code too)
 	if 'publish_date' in bookJson:
-
 		yearMatch = re.search('\d\d\d\d', bookJson['publish_date'])
 		if yearMatch:
 			year = yearMatch.group(0)
 			b._date = year
 		else:
-			# volumeInfo: {publishedDate}
 			b._date = bookJson['publish_date']
 
 	db.session.add(b)
@@ -218,6 +216,16 @@ class AddRecords():
 										# add the book to the db
 										b = Book(_bookId=bookUID, _title=title, _bookJson=json.dumps(bookJsonG), _isbn=isbn)
 										db.session.commit() # commit to get book id
+
+										# TODO: function? (this is reused in the openlibrary code too)
+										if 'publishedDate' in volumeInfo:
+											yearMatch = re.search('\d\d\d\d', volumeInfo['publishedDate'])
+											if yearMatch:
+												year = yearMatch.group(0)
+												b._date = year
+											else:
+												b._date = volumeInfo['publishedDate']
+
 										pb = PhysicalBook(_bookId=b._id)
 										db.session.add(pb)
 										if 'subtitle' in volumeInfo:
