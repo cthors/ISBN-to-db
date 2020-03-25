@@ -102,8 +102,9 @@ def putBookInDb(bookKey, isbn):
 
 		yearMatch = re.match('\d\d\d\d', bookJson['publish_date'])
 		if yearMatch:
-			year = yearMatch.group(0)
-			b._date = year
+			# year = yearMatch.group(0)
+			#b._date = year
+			b._date = "2020"
 		else:
 			# volumeInfo: {publishedDate}
 			b._date = bookJson['publish_date']
