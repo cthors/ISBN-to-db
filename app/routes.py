@@ -2,7 +2,7 @@ from app import app, db
 from app.models import Book
 from app.commonFunc import CommonFunctions
 from app.addRecords import AddRecords
-from flask import render_template, request
+from flask import render_template, request, json
 
 @app.route('/')
 def homepage():
