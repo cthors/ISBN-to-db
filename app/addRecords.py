@@ -104,6 +104,7 @@ def putBookInDb(bookKey, isbn):
 			year = yearMatch.group(0)
 			b._date = year
 		else:
+			# volumeInfo: {publishedDate}
 			b._date = bookJson['publish_date']
 	db.session.add(b)
 	db.session.commit() # commit to get the ID

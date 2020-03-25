@@ -12,9 +12,7 @@ class CommonFunctions():
 		if (book._subtitle):
 			fullTitle = book._title + " - " + book._subtitle
 		authorNm = ', '.join(map(str, book._authors))
-
 		authorNmArr = authorNm.split()
-
 		return {'fullTitle':fullTitle, 'authorNm':authorNmArr, 'bookId':book._bookId, 'isbn':book._isbn, 'sortName':book._sortName, 'date':book._date}
 
 	# output: an array of objects
