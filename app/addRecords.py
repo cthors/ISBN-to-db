@@ -215,8 +215,6 @@ class AddRecords():
 									if not sameTitleRecord:
 										# add the book to the db
 										b = Book(_bookId=bookUID, _title=title, _bookJson=json.dumps(bookJsonG), _isbn=isbn)
-										db.session.commit() # commit to get book id
-
 										# TODO: function? (this is reused in the openlibrary code too)
 										if 'publishedDate' in volumeInfo:
 											yearMatch = re.search('\d\d\d\d', volumeInfo['publishedDate'])
@@ -225,6 +223,7 @@ class AddRecords():
 												b._date = year
 											else:
 												b._date = volumeInfo['publishedDate']
+										db.session.commit() # commit to get book id
 
 										pb = PhysicalBook(_bookId=b._id)
 										db.session.add(pb)
