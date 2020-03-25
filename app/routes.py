@@ -28,7 +28,7 @@ def set_lastname(lname, bookId):
 	bookRecord = Book.query.filter_by(_bookId=bookId).first()
 	# strip the trailing comma if necessary
 	if (lname[-1]==','):
-		lname = lname[0:-2]
+		lname = lname[0:-1]
 	bookRecord._sortName = lname
 	db.session.commit()
 	###
