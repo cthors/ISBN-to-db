@@ -3,8 +3,9 @@
 {% block content %}
 <div class="row">
 	<h5>One Book</h5>
-	{%for i in bookInfo%}
-		{{i}}
-	{%endfor%}
+	{% for key, val in bookInfo.items() %}
+		{{key}}<br />
+		{{val}}
+	{% endfor %}
 </div>
 {% endblock %}
